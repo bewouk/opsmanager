@@ -1,0 +1,123 @@
+
+
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'net.saliman:gradle-cobertura-plugin:2.2.4'
+        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.0.0'
+        classpath 'com.bmuschko:gradle-nexus-plugin:2.0'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.1'
+    }
+}
+
+plugins {
+    id 'net.researchgate.release' version '2.1.2'
+}
+
+repositories {
+    mavenCentral()
+}
+
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+apply plugin: 'cobertura'
+apply plugin: 'com.github.kt3k.coveralls'
+
+ext {
+    metricsVersion = '3.1.2'
+    slf4jVersion = '1.7.12'
+    jacksonVersion = '2.5.4'
+    esVersion = '2.0.0'
+}
+
+subprojects {
+    group = "org.twosigma.mmia.pe"
+
+    apply plugin: 'idea'
+    apply plugin: 'eclipse'
+    apply plugin: 'java'
+    apply plugin: 'cobertura'
+    apply plugin: 'com.github.johnrengelman.shadow'
+
+    configurations {
+        provided
+        compile.extendsFrom provided
+
+        optional
+        compile.extendsFrom optional
+
+        shade
+        compile.extendsFrom shade
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testCompile 'junit:junit:4.12'
+        testCompile 'org.mockito:mockito-all:1.10.19'
+        testCompile 'ch.qos.logback:logback-classic:1.1.3'
+    }
+
+    test.testLogging.exceptionFormat = 'full'
+
+    compileJava {
+        sourceCompatibility = 1.6
+        targetCompatibility = 1.6
+        options.debug = true
+        options.debugOptions.debugLevel = "source,lines,vars"
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+        options.incremental = true
+    }
+
+    cobertura {
+        coverageFormats = []
+        coverageIgnoreTrivial = true
+    }
+
+    javadoc {
+        if (JavaVersion.current().isJava8Compatible()) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
+    }
+
+    task copyToLib( type: Copy ) {
+        into "$buildDir/libs/lib"
+        from configurations.runtime - configurations.provided
+    }
+
+}
+
+release {
+    preTagCommitMessage = 'release '
+    tagCommitMessage = 'release '
+    newVersionCommitMessage = 'next development version '
+    git {
+        requireBranch = null
+    }
+}
+
+def getProjectsToTest() {
+    subprojects.findAll { !(it.toString() =~ "benchmark|buddy") }
+}
+
+test.dependsOn << projectsToTest*.tasks*.withType(Test).flatten()
+
+cobertura {
+    coverageMergeDatafiles =  projectsToTest.collect { file("${it.buildDir.path}/cobertura/cobertura.ser") }
+    coverageFormats = ['html', 'xml']
+    coverageIgnoreTrivial = true
+    coverageSourceDirs = [ projectsToTest.sourceSets.main.java.srcDirs.flatten() ]
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = "2.5"
+}
