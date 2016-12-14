@@ -12,9 +12,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 
-/**
- * Created by sam on 11/23/15.
- */
 public class ElasticsearchClient {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());

@@ -1,0 +1,5 @@
+.gradle/3.2.1/
+build/
+opsmanager-core/build
+.idea/
+*.iml

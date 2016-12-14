@@ -32,6 +32,8 @@ ext {
     slf4jVersion = '1.7.12'
     jacksonVersion = '2.5.4'
     esVersion = '2.0.0'
+    guiceVersion = '4.1.0'
+    kafkaVersion = '0.10.0.0'
 }
 
 subprojects {
@@ -41,7 +43,7 @@ subprojects {
     apply plugin: 'eclipse'
     apply plugin: 'java'
     apply plugin: 'cobertura'
-    apply plugin: 'com.github.johnrengelman.shadow'
+    // apply plugin: 'com.github.johnrengelman.shadow'
 
     configurations {
         provided
@@ -50,8 +52,8 @@ subprojects {
         optional
         compile.extendsFrom optional
 
-        shade
-        compile.extendsFrom shade
+//        shade
+//        compile.extendsFrom shade
     }
 
     repositories {
@@ -67,8 +69,8 @@ subprojects {
     test.testLogging.exceptionFormat = 'full'
 
     compileJava {
-        sourceCompatibility = 1.6
-        targetCompatibility = 1.6
+        sourceCompatibility = 1.7
+        targetCompatibility = 1.7
         options.debug = true
         options.debugOptions.debugLevel = "source,lines,vars"
     }

@@ -35,7 +35,7 @@ public class HttpClient {
     }
 
     public int sendAsJson(final String method, final String url, final Object requestBody) {
-        return sendAsJson(method, url, requestBody, new HashMap<>());
+        return sendAsJson(method, url, requestBody, new HashMap<String, String>());
     }
 
     public int sendAsJson(final String method, final String url, final Object requestBody,
